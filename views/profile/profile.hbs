@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <h1>Profile</h1>
+  <div id="profile-info">
+    <p>Loading...</p>
+  </div>
+  <div id="update-form">
+    <h2>Update Profile</h2>
+    <form id="updateProfileForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required disabled>
+      <label for="isPublic">Is Public:</label>
+      <input type="checkbox" id="isPublic" name="isPublic">
+      <label for="isAdmin">Is Admin:</label>
+      <input type="checkbox" id="isAdmin" name="isAdmin">
+      <button type="submit">Update</button>
+      <p id="updateMessage" class="error-message"></p>
+    </form>
+  </div>
+  <script>
+    $(document).ready(function () {
+      const token = localStorage.getItem('token');
+      console.log('Token from localStorage:', token); 
+      if (token) {
+          $.ajax({
+              type: 'POST',
+              url: '/profile/getData',
+              data: { token: token },
+              success: function (response) {
+                console.log('Response from server:', response);
+                if (response) {
+                  const profileData = response.user;
+                  $('#name').val(profileData.name);
+                  $('#email').val(profileData.email);
+                  $('#isPublic').prop('checked', profileData.isPublic);
+                  $('#isAdmin').prop('checked', profileData.isAdmin);
+                } else {
+                  $('#profile-info').text(response.message);
+                }
+              },
+              error: function () {
+                console.log('Error occurred while fetching profile data');
+                $('#profile-info').text('Error occurred while fetching profile data');
+              }
+          });
+      } else {
+          $('#profile-info').text('Please log in to view your profile');
+      }
+
+      $('#updateProfileForm').submit(function (event) {
+        event.preventDefault();
+        const updatedData = {
+            name: $('#name').val(),
+            email: $('#email').val(),
+            password: $('#password').val(),
+            isPublic: $('#isPublic').prop('checked'),
+            isAdmin: $('#isAdmin').prop('checked')
+        };
+        console.log('update clicked',updatedData)
+        $.ajax({
+            type: 'POST',
+            url: '/profile/update',
+            data: { token: token, updatedProfile: updatedData },
+            success: function (response) {
+                console.log('Update response from server:', response);
+                if (response) {
+                  $('#updateMessage').text('Profile updated successfully');
+                  location.reload();
+                } else {
+                  $('#updateMessage').text('Failed to update profile. Please try again.');
+                }
+            },
+            error: function () {
+              console.log('Error occurred during profile update');
+              $('#updateMessage').text('Error occurred during profile update. Please try again.');
+            }
+        });
+      })
+    });
+</script>
+</body>
+
+</html>

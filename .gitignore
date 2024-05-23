@@ -1,0 +1,9 @@
+# Node.js related
+node_modules/
+npm-debug.log
+
+# macOS related
+.DS_Store
+
+# Environment variables
+.env

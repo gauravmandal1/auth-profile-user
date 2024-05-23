@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Login</h2>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <button id="loginBtn">Login</button>
+    <button id="googleLoginBtn">Login with Google</button>
+    <p>Don't have an account? <a href="/auth/register">Register</a></p>
+    <p><a href="/profile/getAllProfile/">Check All profile</a></p>
+    <p><a href="/profile/getAllProfile/">Check Your profile</a></p>
+    <script>
+        $(document).ready(function() {
+            $('#loginBtn').click(function() {
+                const email = $('#email').val();
+                const password = $('#password').val();
+
+                if (email && password) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/auth/login',
+                        data: {
+                            email: email,
+                            password: password
+                        },
+                        success: function(response) {
+                            if (response.token) {
+                                localStorage.setItem('token', response.token);
+                                window.location.href = `/profile/me`;
+                            }
+                        },
+                        error: function() {
+                            console.log('Error occurred during login');
+                        }
+                    });
+                } else {
+                    console.log('Please fill in all fields');
+                }
+            });
+
+            $('#googleLoginBtn').click(function() {
+                // Redirect to Google login URL
+                window.location.href = '/auth/google';
+            });
+        });
+    </script>
+</body>
+</html>
